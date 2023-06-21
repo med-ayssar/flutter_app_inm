@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:inm_6/fonts/customIcons.dart';
 
-class Panel extends StatefulWidget {
-  const Panel({super.key});
+typedef UpdatePage = void Function(int);
 
-  @override
-  State<Panel> createState() => _PanelState();
-}
+class Panel extends StatelessWidget {
+  const Panel({super.key, required this.setPage, required this.selectedPage});
 
-class _PanelState extends State<Panel> {
-  int index = 0;
+  final UpdatePage setPage;
+  final int selectedPage;
   @override
   Widget build(BuildContext context) {
     return NavigationRail(
+      elevation: 10,
       labelType: NavigationRailLabelType.all,
       minWidth: 80,
       indicatorColor: Colors.green[100],
@@ -61,11 +60,8 @@ class _PanelState extends State<Panel> {
               ],
             ))
       ],
-      selectedIndex: index,
-      onDestinationSelected: (value) => setState(() {
-        index = value;
-        print(value);
-      }),
+      selectedIndex: selectedPage,
+      onDestinationSelected: (value) => setPage(value),
     );
   }
 }
