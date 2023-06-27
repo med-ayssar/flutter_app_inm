@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:inm_6/utils/table_cell.dart' as table_row;
+import 'package:inm_6/component/dialog.dart';
+import 'package:inm_6/utils/table_row.dart' as table_row;
 import 'package:inm_6/data/data.dart' as data_provider;
 
 typedef MyTableRow = table_row.TableRow;
+typedef DialogFactory = Future<int?> Function();
 
 class Table extends StatefulWidget {
   const Table({super.key});
@@ -23,9 +25,6 @@ class _TableState extends State<Table> {
   }
 
   void registerCallBacks(MyTableRow element) {
-    element.updateCellCallback = () => setState(() {
-          element.changeState();
-        });
     element.delete = () {
       setState(() {
         rows.remove(element);
@@ -33,9 +32,45 @@ class _TableState extends State<Table> {
     };
   }
 
+  DialogFactory dialogFactory(BuildContext context) {
+    Future<int?> dialog() {
+      return showDialog<int>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Eintrag Anpassen'),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10.0))),
+              content: Builder(
+                builder: (context) {
+                  // Get available height and width of the build area of this widget. Make a choice depending on the size.
+                  var height = MediaQuery.of(context).size.height;
+                  var width = MediaQuery.of(context).size.width;
+
+                  return SizedBox(
+                    height: 0.60 * height,
+                    width: 1 * width / 3,
+                    child: const DataDialog(),
+                  );
+                },
+              ),
+            );
+          });
+    }
+
+    return dialog;
+  }
+
+  void appendDialogToRow(BuildContext context) {
+    for (var element in rows) {
+      element.updateCellCallback = dialogFactory(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     rows.forEach(registerCallBacks);
+    appendDialogToRow(context);
     return SizedBox.expand(
       child: Padding(
         padding: const EdgeInsets.only(left: 10, top: 20, right: 10),

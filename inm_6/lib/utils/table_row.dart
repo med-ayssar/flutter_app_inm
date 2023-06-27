@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:inm_6/component/dialog.dart';
 import 'package:inm_6/component/grund.dart';
 
 typedef RowCallBack = void Function();
+typedef DialogFuture = Future<int?> Function();
 
 class TableRow {
   TableRow(
@@ -21,7 +23,7 @@ class TableRow {
   final String bis;
   final String beschreibung;
 
-  RowCallBack? updateCellCallback;
+  DialogFuture? updateCellCallback;
   RowCallBack? deleteCallback;
 
   final bool isMarked;
@@ -37,7 +39,7 @@ class TableRow {
         grund: rowData["grund"]);
   }
 
-  set editCell(RowCallBack callback) => updateCellCallback = callback;
+  set editCell(DialogFuture callback) => updateCellCallback = callback;
   set delete(RowCallBack callback) => deleteCallback = callback;
 
   void changeState() {
@@ -48,20 +50,23 @@ class TableRow {
     return DataRow(selected: editable, cells: <DataCell>[
       DataCell(Text(name)),
       DataCell(Text(vorname)),
-      DataCell(Text(von), showEditIcon: editable),
-      DataCell(Text(bis), showEditIcon: editable),
+      DataCell(Text(von)),
+      DataCell(Text(bis)),
       DataCell(
         Grund(
           value: grund,
-          inEditMode: editable,
+          inEditMode: false,
         ),
       ),
-      DataCell(Text(beschreibung), showEditIcon: editable),
+      DataCell(Text(beschreibung)),
       DataCell(Row(
         children: [
           IconButton(
               tooltip: "Anpassen",
-              onPressed: updateCellCallback,
+              onPressed: () async {
+                var x = await updateCellCallback!();
+                print(x);
+              },
               icon: const Icon(
                 Icons.edit,
               )),
