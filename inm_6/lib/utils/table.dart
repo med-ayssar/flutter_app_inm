@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:inm_6/component/dialog.dart';
 import 'package:inm_6/utils/table_row.dart' as table_row;
 import 'package:inm_6/data/data.dart' as data_provider;
+import 'package:inm_6/utils/user.dart';
 
 typedef MyTableRow = table_row.TableRow;
-typedef DialogFactory = Future<int?> Function();
+typedef DialogFactory = Future<User?> Function();
 
 class Table extends StatefulWidget {
   const Table({super.key});
@@ -32,9 +33,9 @@ class _TableState extends State<Table> {
     };
   }
 
-  DialogFactory dialogFactory(BuildContext context) {
-    Future<int?> dialog() {
-      return showDialog<int>(
+  DialogFactory dialogFactory(BuildContext context, User user) {
+    Future<User?> dialog() {
+      return showDialog<User>(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -50,7 +51,9 @@ class _TableState extends State<Table> {
                   return SizedBox(
                     height: 0.60 * height,
                     width: 1 * width / 3,
-                    child: const DataDialog(),
+                    child: DataDialog(
+                      user: user,
+                    ),
                   );
                 },
               ),
@@ -63,7 +66,7 @@ class _TableState extends State<Table> {
 
   void appendDialogToRow(BuildContext context) {
     for (var element in rows) {
-      element.updateCellCallback = dialogFactory(context);
+      element.updateCellCallback = dialogFactory(context, element.user);
     }
   }
 

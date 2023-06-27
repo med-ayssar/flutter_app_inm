@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   elegant_notification: ^1.10.0
+  provider: ^6.0.0
 
 dev_dependencies:
   flutter_test:

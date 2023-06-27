@@ -1,33 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:inm_6/component/dialog.dart';
 import 'package:inm_6/component/grund.dart';
+import 'package:inm_6/utils/user.dart';
+import 'package:provider/provider.dart';
 
 typedef RowCallBack = void Function();
-typedef DialogFuture = Future<int?> Function();
+typedef DialogFuture = Future<User?> Function();
 
 class TableRow {
   TableRow(
-      {required this.name,
-      required this.vorname,
-      required this.grund,
-      required this.von,
-      required this.bis,
-      this.isMarked = false,
-      this.beschreibung = "K.A"});
+      {required String name,
+      required String vorname,
+      required String grund,
+      required String von,
+      required String bis,
+      String beschreibung = "K.A",
+      this.isMarked = false})
+      : _user = User(
+            name: name,
+            vorname: vorname,
+            beschreibung: beschreibung,
+            von: von,
+            bis: bis,
+            grund: grund);
 
-  final String name;
-  final String vorname;
-  final String grund;
-
-  final String von;
-  final String bis;
-  final String beschreibung;
-
+  User _user;
   DialogFuture? updateCellCallback;
   RowCallBack? deleteCallback;
 
   final bool isMarked;
   bool editable = false;
+
+  User get user => _user;
+  void set(User newUser) => _user = newUser;
 
   factory TableRow.fromJson(Map<String, dynamic> rowData) {
     return TableRow(
@@ -46,26 +51,33 @@ class TableRow {
     editable = !editable;
   }
 
+  Name? name;
+
   DataRow getRow() {
     return DataRow(selected: editable, cells: <DataCell>[
-      DataCell(Text(name)),
-      DataCell(Text(vorname)),
-      DataCell(Text(von)),
-      DataCell(Text(bis)),
+      DataCell(ChangeNotifierProvider(
+        create: (context) => _user,
+        child: Name(),
+      )),
+      DataCell(Text(user.vorname!)),
+      DataCell(Text(user.von!)),
+      DataCell(Text(user.bis!)),
       DataCell(
         Grund(
-          value: grund,
+          value: user.grund!,
           inEditMode: false,
         ),
       ),
-      DataCell(Text(beschreibung)),
+      DataCell(Text(user.beschreibung!)),
       DataCell(Row(
         children: [
           IconButton(
               tooltip: "Anpassen",
               onPressed: () async {
-                var x = await updateCellCallback!();
-                print(x);
+                User? newUser = await updateCellCallback!();
+                if (newUser != null) {
+                  _user.updateName(newUser.name!);
+                }
               },
               icon: const Icon(
                 Icons.edit,
@@ -83,5 +95,13 @@ class TableRow {
         ],
       ))
     ]);
+  }
+}
+
+class Name extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var user = context.watch<User>();
+    return Text(user.name!);
   }
 }
