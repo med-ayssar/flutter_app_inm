@@ -17,9 +17,26 @@ class User with ChangeNotifier {
   String? bis;
   String? beschreibung;
 
-  void updateName(String newName) {
-    name = newName;
+  void updateName(User oldUser) {
+    name = oldUser.name;
+    vorname = oldUser.vorname;
+    grund = oldUser.grund;
+    von = oldUser.von;
+    bis = oldUser.bis;
+    beschreibung = oldUser.beschreibung;
     notifyListeners();
+  }
+
+  String operator [](String label) {
+    Map<String, String> data = {
+      "name": name!,
+      "vorname": vorname!,
+      "grund": grund!,
+      "von": von!,
+      "bis": bis!,
+      "beschreibung": beschreibung!
+    };
+    return data[label]!;
   }
 
   @override

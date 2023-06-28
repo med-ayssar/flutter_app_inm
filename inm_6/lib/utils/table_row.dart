@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:inm_6/component/dialog.dart';
-import 'package:inm_6/component/grund.dart';
 import 'package:inm_6/utils/user.dart';
 import 'package:provider/provider.dart';
 
@@ -51,24 +49,32 @@ class TableRow {
     editable = !editable;
   }
 
-  Name? name;
-
   DataRow getRow() {
     return DataRow(selected: editable, cells: <DataCell>[
       DataCell(ChangeNotifierProvider(
         create: (context) => _user,
-        child: Name(),
+        child: const Element(elementName: "name"),
       )),
-      DataCell(Text(user.vorname!)),
-      DataCell(Text(user.von!)),
-      DataCell(Text(user.bis!)),
-      DataCell(
-        Grund(
-          value: user.grund!,
-          inEditMode: false,
-        ),
-      ),
-      DataCell(Text(user.beschreibung!)),
+      DataCell(ChangeNotifierProvider(
+        create: (context) => _user,
+        child: const Element(elementName: "vorname"),
+      )),
+      DataCell(ChangeNotifierProvider(
+        create: (context) => _user,
+        child: const Element(elementName: "von"),
+      )),
+      DataCell(ChangeNotifierProvider(
+        create: (context) => _user,
+        child: const Element(elementName: "bis"),
+      )),
+      DataCell(ChangeNotifierProvider(
+        create: (context) => _user,
+        child: const Element(elementName: "grund"),
+      )),
+      DataCell(ChangeNotifierProvider(
+        create: (context) => _user,
+        child: const Element(elementName: "beschreibung"),
+      )),
       DataCell(Row(
         children: [
           IconButton(
@@ -76,7 +82,8 @@ class TableRow {
               onPressed: () async {
                 User? newUser = await updateCellCallback!();
                 if (newUser != null) {
-                  _user.updateName(newUser.name!);
+                  print(newUser);
+                  _user.updateName(newUser);
                 }
               },
               icon: const Icon(
@@ -98,10 +105,12 @@ class TableRow {
   }
 }
 
-class Name extends StatelessWidget {
+class Element extends StatelessWidget {
+  final String elementName;
+  const Element({super.key, required this.elementName});
   @override
   Widget build(BuildContext context) {
     var user = context.watch<User>();
-    return Text(user.name!);
+    return Text(user[elementName]);
   }
 }
