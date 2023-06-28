@@ -8,7 +8,8 @@ typedef MyTableRow = table_row.TableRow;
 typedef DialogFactory = Future<User?> Function();
 
 class Table extends StatefulWidget {
-  const Table({super.key});
+  const Table({super.key, required this.marked});
+  final bool marked;
 
   @override
   State<Table> createState() => _TableState();
@@ -20,7 +21,10 @@ class _TableState extends State<Table> {
   @override
   void initState() {
     super.initState();
-    for (var element in data_provider.data) {
+    List<dynamic> localData =
+        widget.marked ? data_provider.doneData : data_provider.data;
+
+    for (var element in localData) {
       rows.add(MyTableRow.fromJson(element));
     }
   }
@@ -28,7 +32,14 @@ class _TableState extends State<Table> {
   void registerCallBacks(MyTableRow element) {
     element.delete = () {
       setState(() {
-        rows.remove(element);
+        rows.removeWhere((e) => e.id == element.id);
+      });
+    };
+
+    element.updateMark = () {
+      setState(() {
+        rows.removeWhere((e) => e.id == element.id);
+        data_provider.moveData(element.user, !widget.marked);
       });
     };
   }
@@ -74,7 +85,8 @@ class _TableState extends State<Table> {
   Widget build(BuildContext context) {
     rows.forEach(registerCallBacks);
     appendDialogToRow(context);
-    return SizedBox.expand(
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
       child: Padding(
         padding: const EdgeInsets.only(left: 10, top: 20, right: 10),
         child: DataTable(
@@ -96,7 +108,12 @@ class _TableState extends State<Table> {
                 color: Colors.deepPurple.shade300),
             headingRowColor: MaterialStateProperty.resolveWith<Color?>(
                 (Set<MaterialState> states) {
-              return Colors.purple.shade50; // Use the default value.
+              if (widget.marked) {
+                return Colors.yellow.shade50;
+              } else {
+                return Colors.purple.shade50;
+              }
+              // Use the default value.
             }),
             columns: const <DataColumn>[
               DataColumn(
@@ -119,7 +136,7 @@ class _TableState extends State<Table> {
               DataColumn(label: Center(child: Text("Beschreibung"))),
               DataColumn(label: Center(child: Text("Action"))),
             ],
-            rows: rows.map((e) => e.getRow()).toList()),
+            rows: rows.map((e) => e.getRow(isMarked: widget.marked)).toList()),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inm_6/utils/table.dart' as local_table;
 
 class Done extends StatelessWidget {
   Done({super.key}) {
@@ -7,8 +8,13 @@ class Done extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("done"),
+    return Flexible(
+      child: Container(
+        constraints: const BoxConstraints.expand(),
+        child: const local_table.Table(
+          marked: true,
+        ),
+      ),
     );
   }
 }

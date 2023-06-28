@@ -1,14 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class User with ChangeNotifier {
   User(
-      {this.name,
+      {this.id,
+      this.name,
       this.vorname,
       this.grund,
       this.von,
       this.bis,
       this.beschreibung});
 
+  String? id;
   String? name;
   String? vorname;
   String? grund;
@@ -16,6 +20,19 @@ class User with ChangeNotifier {
   String? von;
   String? bis;
   String? beschreibung;
+
+  factory User.empty() {
+    return User(
+        name: "",
+        vorname: "",
+        grund: "none",
+        von: DateFormat("dd.MM.yyyy").format(DateTime.now()),
+        bis: DateFormat("dd.MM.yyyy").format(DateTime.now()),
+        beschreibung: "",
+        id: "-1");
+  }
+
+  bool _disposed = false;
 
   void updateName(User oldUser) {
     name = oldUser.name;
@@ -34,18 +51,42 @@ class User with ChangeNotifier {
       "grund": grund!,
       "von": von!,
       "bis": bis!,
-      "beschreibung": beschreibung!
+      "beschreibung": beschreibung!,
+      "id": id!,
     };
     return data[label]!;
   }
 
   @override
   String toString() {
-    return "name={$name}, vorname={$vorname}, grund={$grund}, von={$von}, bis={$bis}, beschreibung={$beschreibung}";
+    return "id=${id}, name={$name}, vorname={$vorname}, grund={$grund}, von={$von}, bis={$bis}, beschreibung={$beschreibung}";
   }
-}
 
-class TestUser extends ChangeNotifier {
-  int x = 5;
-  void remove() {}
+  Map<String, String> toMap() {
+    Map<String, String> res = {
+      "id": id!,
+      "name": name!,
+      "vorname": vorname!,
+      "von": von!,
+      "bis": bis!,
+      "grund": grund!,
+      "beschreibung": beschreibung!
+    };
+    return res;
+  }
+
+  @override
+  void dispose() {
+    if (!_disposed) {
+      super.dispose();
+      _disposed = true;
+    }
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
+  }
 }

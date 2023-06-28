@@ -19,6 +19,17 @@ class Panel extends StatelessWidget {
       useIndicator: true,
       destinations: const [
         NavigationRailDestination(
+          icon: Icon(Icons.add_card),
+          label: Column(
+            children: [
+              SizedBox(
+                height: 8,
+              ),
+              Text("Neuer Antrag")
+            ],
+          ),
+        ),
+        NavigationRailDestination(
           icon: Icon(Icons.pending),
           label: Column(
             children: [
