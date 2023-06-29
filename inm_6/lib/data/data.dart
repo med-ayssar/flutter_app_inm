@@ -1,151 +1,184 @@
-import 'dart:convert';
+import 'package:mysql_client/mysql_client.dart';
+import 'package:inm_6/utils/config.dart' show connectionConfig;
+import '../utils/user.dart' show Names, User;
 
-import '../utils/user.dart';
+List<dynamic> data = [];
 
-String dataString = '''
-[{
-  "id":0,
-  "name": "Benelhedi",
-  "vorname": "Ayssar",
-  "grund": "1",
-  "von": "21.09.1995",
-  "bis": "21.09.1995",
-  "beschreibung" : "K.a"
-},
-{
-  "id":1,
-  "name": "45t",
-  "vorname": "hh4",
-  "grund": "1",
-  "von": "21.09.1995",
-  "bis": "21.09.1995",
-  "beschreibung" : "K.a"
-},
-{
-  "id":2,
-  "name": "xx",
-  "vorname": "yy",
-  "grund": "1",
-  "von": "21.09.1995",
-  "bis": "21.09.1995",
-  "beschreibung" : "K.a"
-},
-{
-  "id":3,
-  "name": "gg",
-  "vorname": "bh",
-  "grund": "1",
-  "von": "21.09.1995",
-  "bis": "21.09.1995",
-  "beschreibung" : "K.a"
-},
-{
-  "id":4,
-  "name": "12",
-  "vorname": "23",
-  "grund": "1",
-  "von": "21.09.1995",
-  "bis": "21.09.1995",
-  "beschreibung" : "K.a"
-},
-{
-  "id":5,
-  "name": "aa",
-  "vorname": "bb",
-  "grund": "1",
-  "von": "21.09.1995",
-  "bis": "21.09.1995",
-  "beschreibung" : "K.a"
-}
-]
-''';
+List<dynamic> doneData = [];
 
-List<dynamic> data = jsonDecode(dataString);
+Names observableNames = Names.empty();
 
-List<dynamic> doneData = jsonDecode(dataString);
-
-List<String> names = [
-  'Albers, Jasper',
-  'Bakker, Rembrandt ',
-  'Benelhedi, Ayssar',
-  'Barthelemy, Fred',
-  'Böttcher, Joshua',
-  'Bouss, Peter',
-  'Chebrol, Neharika',
-  'Dahmen, David ',
-  'Denker, Michael ',
-  'Dick, Michael',
-  'Diesmann, Markus',
-  'Elfgen, Anne',
-  'Essink, Simon',
-  'Ewert, Leander',
-  'Finnerty, Justin',
-  'Fischer, Angela',
-  'Fischer, Kirsten',
-  'Gehlich, Lena',
-  'Gillessen, Sebastian',
-  'Goyer, David',
-  'Graber, Steffen',
-  'Grün, Sonja',
-  'Gutzen, Robin',
-  'Helias, Moritz ',
-  'Ito, Junji',
-  'Kern, Moritz',
-  'Kleinjohann, Alexander',
-  'Kloss, Oliver',
-  'Köhler, Cristiano',
-  'Köhn, Clemens',
-  'Kramer, Max',
-  'Krauße, Sven',
-  'Kurth, Anno',
-  'Lehm, Janine',
-  'Li, Xiuzhi',
-  'Lindner, Javed',
-  'Lober, Melissa',
-  'Meißner, Saskia',
-  'Michels, Tobias',
-  'Mitchell, Jessica',
-  'Morales, Aitor',
-  'More, Heather',
-  'Morrison, Abigail',
-  'Nestler, Sandra',
-  'Oberländer, Jette',
-  'Oberste-Frielinghaus, Jonas',
-  "O'Brien, Petra",
-  'Oliveira Shimoura, Renan',
-  'Palm, Günther',
-  'Paoletti, Monica',
-  'Peraza Coppola, Gorka',
-  'Plesser, Hans Ekkehard',
-  'Reske, Martina',
-  'René, Alexandre',
-  'Riehle, Alexa',
-  'Schulte to Brinke, Tobias',
-  'Schutzeichel, Lars',
-  'Senk, Johanna',
-  'Terhorst, Dennis',
-  'Tetzlaff, Tom',
-  'Theinen, Silas',
-  'Tiberi, Lorenzo',
-  'van Albada, Sacha ',
-  'Villamar, Jose',
-  'Vogelsang, Jan',
-  'Wybo, Willem',
-  'Zajzon, Barna'
+final List<String> dropDownOptions = [
+  "A?",
+  "Url",
+  "k?",
+  "RRU",
+  "DR",
+  "Sontiges"
 ];
 
-void moveData(User user, bool dest) {
-  List<dynamic> toInsertIn = dest ? doneData : data;
-  List<dynamic> toRemoveFrom = dest ? data : doneData;
+Future<String> moveData(User user, bool marked) async {
+  String toInsertIn = marked ? "todo" : "done";
+  String toRemoveFrom = !marked ? "todo" : "done";
 
-  user.id = (toInsertIn.length + 1).toString();
-  toInsertIn.add(user.toMap());
+  String deleteQuery = 'delete from $toRemoveFrom where ID="${user.id}"';
+  String insertQuery =
+      'insert into $toInsertIn SET name="${user.name}", vorname="${user.vorname}", von="${convertToSQLDate(user.von!)}", bis="${convertToSQLDate(user.bis!)}", beschreibung="${user.beschreibung}", grund="${user.grund}"';
 
-  toRemoveFrom.removeWhere((element) => element["id"] == user.id);
+  await connectToDataBase();
+
+  try {
+    await databaseConnection!.execute(deleteQuery);
+    await databaseConnection!.execute(insertQuery);
+    await fetchToDoData();
+    await fetchMarkedData();
+  } catch (e) {
+    return e.toString();
+  }
+  closeConnection();
+  return "";
 }
 
-void insertNewEntry(User user) {
-  user.id = (data.length + 1).toString();
-  print(data);
-  data.add(user.toMap());
+Future<String> addName(String newName) async {
+  List<String> data = newName.split(", ");
+  String query =
+      'insert into names SET name="${data[0]}", vorname="${data[1]}";';
+
+  await connectToDataBase();
+
+  try {
+    await databaseConnection!.execute(query);
+    await fetchNames();
+  } catch (e) {
+    return e.toString();
+  }
+  closeConnection();
+  return "";
+}
+
+Future<String> deleteName(String newName) async {
+  List<String> data = newName.split(", ");
+  String query =
+      'delete from names where name="${data[0]}" and vorname="${data[1]}";';
+
+  await connectToDataBase();
+  try {
+    await databaseConnection!.execute(query);
+    await fetchNames();
+  } catch (e) {
+    return e.toString();
+  }
+  closeConnection();
+  return "";
+}
+
+Future<String> delete(User user, bool marked) async {
+  String table = marked ? "done" : "todo";
+
+  String deleteQuery = 'delete from $table where ID="${user.id}"';
+
+  await connectToDataBase();
+
+  try {
+    await databaseConnection!.execute(deleteQuery);
+    await fetchToDoData();
+    await fetchMarkedData();
+  } catch (e) {
+    return e.toString();
+  }
+  closeConnection();
+  return "";
+}
+
+Future<String> insertNewEntry(User user) async {
+  return await createToDoEntry(user);
+}
+
+Future<String> updateUser(User user, bool dest) async {
+  await connectToDataBase();
+  String table = dest ? "done" : "todo";
+  String query =
+      'update $table SET name="${user.name}", vorname="${user.vorname}", von="${convertToSQLDate(user.von!)}", bis="${convertToSQLDate(user.bis!)}", beschreibung="${user.beschreibung}", grund="${user.grund}" where ID="${user.id}"';
+  try {
+    await databaseConnection!.execute(query);
+    await fetchToDoData();
+  } catch (e) {
+    return e.toString();
+  }
+  closeConnection();
+  return "";
+}
+
+String convertToSQLDate(String date) {
+  return List.from(date.split(".").reversed).join(".");
+}
+
+Future<String> createToDoEntry(User user) async {
+  bool err = await connectToDataBase();
+  String query =
+      'insert into todo SET name="${user.name}", vorname="${user.vorname}", von="${convertToSQLDate(user.von!)}",  beschreibung="${user.beschreibung}", bis="${convertToSQLDate(user.bis!)}", grund="${user.grund}"';
+  if (err) {
+    try {
+      await databaseConnection!.execute(query);
+      await fetchToDoData();
+    } catch (e) {
+      return e.toString();
+    }
+    closeConnection();
+    return "";
+  }
+  return "Failure: No Connection to database";
+}
+
+MySQLConnection? databaseConnection;
+
+Future<bool> connectToDataBase() async {
+  try {
+    databaseConnection = await MySQLConnection.createConnection(
+      host: connectionConfig["host"],
+      port: int.parse(connectionConfig["port"]),
+      userName: connectionConfig["user"],
+      password: connectionConfig["password"],
+      databaseName: connectionConfig["database"], // optional
+    );
+
+    await databaseConnection!.connect();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+void closeConnection() {
+  if (databaseConnection!.connected) databaseConnection!.close();
+}
+
+Future<List<Map<String, String?>>?> retrievedata(String table) async {
+  String query = "SELECT * FROM $table";
+  var response = await databaseConnection?.execute(query);
+  return response?.rows?.map((e) => e.assoc()).toList();
+}
+
+Future<void> fetchToDoData() async {
+  data = (await retrievedata("todo"))!;
+}
+
+Future<void> fetchMarkedData() async {
+  doneData = (await retrievedata("done"))!;
+}
+
+Future<void> fetchNames() async {
+  List<dynamic> names_ = (await retrievedata("names"))!;
+  observableNames.data =
+      names_.map((e) => "${e["name"]}, ${e["vorname"]}").toList();
+}
+
+Future<void> fetchData() async {
+  bool succ = await connectToDataBase();
+  if (succ) {
+    await fetchToDoData();
+    await fetchMarkedData();
+    await fetchNames();
+    closeConnection();
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -22,7 +23,7 @@ class _PeopleState extends State<People> {
           children: [
             Expanded(
               child: AlphabetScrollView(
-                list: names.map((e) => AlphaModel(e)).toList(),
+                list: observableNames.names.map((e) => AlphaModel(e)).toList(),
                 // isAlphabetsFiltered: false,
                 alignment: LetterAlignment.right,
                 itemExtent: 50,
@@ -61,16 +62,34 @@ class _PeopleState extends State<People> {
                 itemBuilder: (_, k, id) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 20),
-                    child: ListTile(
-                      title: Text('$id'),
-                      leading: const Icon(Icons.person),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            names.removeWhere((element) => element == id);
-                          });
-                        },
+                    child: Card(
+                      color: Colors.green.shade50,
+                      child: ListTile(
+                        title: Text('$id'),
+                        leading: const Icon(Icons.person),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () async {
+                            String err = await deleteName(id);
+                            if (err != "") {
+                              // ignore: use_build_context_synchronously
+                              ElegantNotification.error(
+                                      toastDuration:
+                                          const Duration(seconds: 30),
+                                      title: const Text("Deleting Name"),
+                                      description: Text(err))
+                                  .show(context);
+                            } else {
+                              // ignore: use_build_context_synchronously
+                              ElegantNotification.success(
+                                      title: const Text("Deleting Name"),
+                                      description: const Text(
+                                          "Your data has been updated"))
+                                  .show(context);
+                            }
+                            setState(() {});
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -119,7 +138,7 @@ class NewName extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? NewName = "";
+    String? newName = "";
     var key = GlobalKey<FormBuilderState>();
     return FormBuilder(
       key: key,
@@ -131,7 +150,7 @@ class NewName extends StatelessWidget {
             FormBuilderTextField(
               name: "Name, Vorname",
               initialValue: "",
-              onSaved: (newValue) => {NewName = newValue},
+              onSaved: (newValue) => {newName = newValue},
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
                 FormBuilderValidators.match(r'[A-Za-z]+, [A-Za-z]+')
@@ -155,7 +174,7 @@ class NewName extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red.shade300),
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(context);
                     },
                     child: const Text(
@@ -170,10 +189,26 @@ class NewName extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green.shade300),
-                    onPressed: () {
+                    onPressed: () async {
                       if (key.currentState!.validate()) {
                         key.currentState!.save();
-                        names.add(NewName!);
+                        String err = await addName(newName!);
+                        if (err != "") {
+                          // ignore: use_build_context_synchronously
+                          ElegantNotification.error(
+                                  toastDuration: const Duration(seconds: 30),
+                                  title: const Text("Create new Name"),
+                                  description: Text(err))
+                              .show(context);
+                        } else {
+                          // ignore: use_build_context_synchronously
+                          ElegantNotification.success(
+                                  title: const Text("Create new Name"),
+                                  description:
+                                      const Text("Your data has been updated"))
+                              .show(context);
+                        }
+                        // ignore: use_build_context_synchronously
                         Navigator.pop(context);
                       }
                     },

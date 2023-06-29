@@ -6,30 +6,24 @@ import 'package:inm_6/pages/settings.dart';
 import 'package:inm_6/pages/todo.dart';
 import 'package:inm_6/panel.dart';
 import 'package:desktop_window/desktop_window.dart';
+import 'package:inm_6/data/data.dart' as database;
+import 'package:provider/provider.dart';
+import 'package:inm_6/utils/config.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 void main() async {
+  await ensureConfigInitialized();
+  await setConfigData();
   WidgetsFlutterBinding.ensureInitialized();
-  await DesktopWindow.setMinWindowSize(Size(1600, 800));
-  runApp(MainApp());
+  await DesktopWindow.setMinWindowSize(const Size(1600, 800));
+  await database.fetchData();
+
+  runApp(
+    Phoenix(
+      child: MainApp(),
+    ),
+  );
 }
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   // Must add this line.
-//   await windowManager.ensureInitialized();
-
-//   WindowOptions windowOptions = WindowOptions(
-//     size: Size(1300, 600),
-//     minimumSize: Size(1300, 600),
-//     center: true,
-//   );
-//   windowManager.waitUntilReadyToShow(windowOptions, () async {
-//     await windowManager.show();
-//     await windowManager.focus();
-//   });
-
-//   runApp(MainApp());
-// }
 
 class MainApp extends StatefulWidget {
   MainApp({super.key});
@@ -45,7 +39,9 @@ class _MainAppState extends State<MainApp> {
     TODO(),
     Done(),
     People(),
-    Settings()
+    Settings(
+      data: connectionConfig,
+    )
   ];
 
   void updatePage(int newSelectedPage) {
@@ -63,10 +59,13 @@ class _MainAppState extends State<MainApp> {
     Panel panel = Panel(selectedPage: selectedPage, setPage: updatePage);
     Widget page = pages.elementAt(selectedPage);
     return MaterialApp(
-      home: Scaffold(
-          body: Row(
-        children: [panel, page],
-      )),
+      home: ChangeNotifierProvider(
+        create: (context) => database.observableNames,
+        child: Scaffold(
+            body: Row(
+          children: [panel, page],
+        )),
+      ),
     );
   }
 }

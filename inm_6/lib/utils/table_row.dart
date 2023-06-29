@@ -1,8 +1,12 @@
+import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:inm_6/utils/user.dart';
 import 'package:provider/provider.dart';
+import 'package:inm_6/data/data.dart' as database;
 
 typedef RowCallBack = void Function();
+typedef NotifyCallBack = void Function(String, String);
+
 typedef DialogFuture = Future<User?> Function();
 
 class TableRow {
@@ -26,8 +30,8 @@ class TableRow {
 
   User _user;
   DialogFuture? updateCellCallback;
-  RowCallBack? deleteCallback;
-  RowCallBack? updateMarkedState;
+  RowCallBack? _move;
+  NotifyCallBack? _notify;
 
   final bool isMarked;
   bool editable = false;
@@ -38,18 +42,18 @@ class TableRow {
 
   factory TableRow.fromJson(Map<String, dynamic> rowData) {
     return TableRow(
-        id: rowData["id"].toString(),
+        id: rowData["ID"].toString(),
         name: rowData["name"],
         vorname: rowData["vorname"],
-        von: rowData["von"],
-        bis: rowData["bis"],
+        von: List.from(rowData["von"].split("-").reversed).join("."),
+        bis: List.from(rowData["bis"].split("-").reversed).join("."),
         beschreibung: rowData["beschreibung"],
         grund: rowData["grund"]);
   }
 
   set editCell(DialogFuture callback) => updateCellCallback = callback;
-  set delete(RowCallBack callback) => deleteCallback = callback;
-  set updateMark(RowCallBack callback) => updateMarkedState = callback;
+  set move(RowCallBack callback) => _move = callback;
+  set nottiy(NotifyCallBack callback) => _notify = callback;
 
   void changeState() {
     editable = !editable;
@@ -92,21 +96,30 @@ class TableRow {
                     User? newUser = await updateCellCallback!();
                     if (newUser != null) {
                       assert(user.id == newUser.id);
-                      _user.updateName(newUser);
+                      String err = await _user.updateUser(newUser, isMarked);
+                      _notify!(err, "Update Entry");
                     }
                   },
                   icon: const Icon(
                     Icons.edit,
                   )),
               IconButton(
-                onPressed: updateMarkedState,
+                onPressed: () async {
+                  String err = await database.moveData(_user, isMarked);
+                  _notify!(err, "Move Entry");
+                  _move!();
+                },
                 icon: isMarked
                     ? const Icon(Icons.undo_sharp)
                     : const Icon(Icons.done_all_sharp),
                 tooltip: isMarked ? "Unmarkieren" : "Markiern",
               ),
               IconButton(
-                onPressed: deleteCallback,
+                onPressed: () async {
+                  String err = await database.delete(_user, isMarked);
+                  _notify!(err, "Delete Entry");
+                  _move!();
+                },
                 icon: const Icon(Icons.delete_forever_outlined),
                 tooltip: "Loeschen",
               )
@@ -122,6 +135,14 @@ class Element extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var user = context.watch<User>();
-    return Text(user[elementName]);
+    return SizedBox(
+      width: 150,
+      child: Text(
+        user[elementName],
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        maxLines: 1,
+      ),
+    );
   }
 }

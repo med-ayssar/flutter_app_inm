@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:inm_6/utils/user.dart';
-import 'package:inm_6/data/data.dart' as data_provider;
+import 'package:inm_6/data/data.dart' as database;
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class EntryDialog extends StatefulWidget {
   const EntryDialog({super.key});
@@ -16,7 +17,7 @@ class EntryDialog extends StatefulWidget {
 
 class _EntryDialogState extends State<EntryDialog> {
   final formKey = GlobalKey<FormBuilderState>();
-  final List<String> dropDownOptions = ["k", "ff", "nop", "tx", "Rx"];
+  final List<String> dropDownOptions = database.dropDownOptions;
   User newUser = User.empty();
 
   void parseSelectedUser(String value) {
@@ -27,6 +28,7 @@ class _EntryDialogState extends State<EntryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    var data = context.watch<Names>();
     return FormBuilder(
       key: formKey,
       child: Column(
@@ -41,7 +43,7 @@ class _EntryDialogState extends State<EntryDialog> {
             ),
             validator: FormBuilderValidators.compose(
                 [FormBuilderValidators.required()]),
-            items: data_provider.names
+            items: data.names
                 .map((item) => DropdownMenuItem(
                       alignment: AlignmentDirectional.bottomStart,
                       value: item,
@@ -134,14 +136,23 @@ class _EntryDialogState extends State<EntryDialog> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade300),
-                  onPressed: () {
+                  onPressed: () async {
                     formKey.currentState!.validate();
                     formKey.currentState!.save();
-                    data_provider.insertNewEntry(newUser);
-                    ElegantNotification.success(
-                            title: Text("Update"),
-                            description: Text("Your data has been updated"))
-                        .show(context);
+                    String error = await database.insertNewEntry(newUser);
+                    if (error != "") {
+                      // ignore: use_build_context_synchronously
+                      ElegantNotification.error(
+                              title: const Text("New Entry"),
+                              description: Text(error))
+                          .show(context);
+                    } else {
+                      ElegantNotification.success(
+                              title: Text("New Entry"),
+                              description: Text("Your data has been updated"))
+                          .show(context);
+                    }
+
                     formKey.currentState!.reset();
                   },
                   child: const Text(

@@ -1,6 +1,52 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:inm_6/data/data.dart' as database;
+
+class Names with ChangeNotifier {
+  Names({required this.names});
+  factory Names.empty() {
+    return Names(names: <String>[]);
+  }
+  List<String> names;
+
+  set data(List<String> otherNames) {
+    names = otherNames;
+    names.sort();
+    notifyListeners();
+  }
+
+  bool _disposed = false;
+
+  Future<String> removeName(String newName) async {
+    names.removeWhere((e) => e == newName);
+    String err = await database.deleteName(newName);
+    notifyListeners();
+    return err;
+  }
+
+  Future<String> addName(String newName) async {
+    names.add(newName);
+    String err = await database.addName(newName);
+    notifyListeners();
+    return err;
+  }
+
+  @override
+  void dispose() {
+    if (!_disposed) {
+      super.dispose();
+      _disposed = true;
+    }
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) {
+      super.notifyListeners();
+    }
+  }
+}
 
 class User with ChangeNotifier {
   User(
@@ -34,14 +80,16 @@ class User with ChangeNotifier {
 
   bool _disposed = false;
 
-  void updateName(User oldUser) {
+  Future<String> updateUser(User oldUser, bool marked) async {
     name = oldUser.name;
     vorname = oldUser.vorname;
     grund = oldUser.grund;
     von = oldUser.von;
     bis = oldUser.bis;
     beschreibung = oldUser.beschreibung;
+    String err = await database.updateUser(this, marked);
     notifyListeners();
+    return err;
   }
 
   String operator [](String label) {

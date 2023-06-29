@@ -5,6 +5,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:inm_6/utils/user.dart';
 import 'package:intl/intl.dart';
+import 'package:inm_6/data/data.dart' as database;
 
 class DataDialog extends StatefulWidget {
   DataDialog({super.key, required this.user});
@@ -15,7 +16,7 @@ class DataDialog extends StatefulWidget {
 
 class _DataDialogState extends State<DataDialog> {
   final formKey = GlobalKey<FormBuilderState>();
-  final List<String> dropDownOptions = ["k", "ff", "nop", "tx", "Rx"];
+  final List<String> dropDownOptions = database.dropDownOptions;
   @override
   Widget build(BuildContext context) {
     return FormBuilder(
@@ -80,7 +81,7 @@ class _DataDialogState extends State<DataDialog> {
             initialValue: DateFormat('dd.MM.yyyy').parse(widget.user.von!),
             inputType: InputType.date,
             onSaved: (value) => {
-              widget.user.von = "${value?.day}.${value?.month}.${value?.year}"
+              widget.user.von = DateFormat("dd.MM.yyyy").format(value!),
             },
             initialTime: const TimeOfDay(hour: 8, minute: 0),
             valueTransformer: (value) =>
@@ -93,7 +94,7 @@ class _DataDialogState extends State<DataDialog> {
             initialEntryMode: DatePickerEntryMode.calendarOnly,
             inputType: InputType.date,
             onSaved: (value) => {
-              widget.user.bis = "${value?.day}.${value?.month}.${value?.year}"
+              widget.user.bis = DateFormat("dd.MM.yyyy").format(value!),
             },
             initialTime: const TimeOfDay(hour: 8, minute: 0),
             valueTransformer: (value) =>
