@@ -9,7 +9,7 @@ jobs:
   build-and-release-linux:
     runs-on: ubuntu-latest
     env:
-      working-directory: inm6
+      working-directory: inm_6
 
     steps:
       - uses: actions/checkout@v2
@@ -21,31 +21,31 @@ jobs:
         run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install project dependencies
         run:  |
-          cd inm6
+          cd inm_6
           flutter pub get
       - name: Generate intermediates
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Enable linux build
         run: |
-          cd inm6
+          cd inm_6
           flutter config --enable-linux-desktop
       - name: Build artifacts
         run: |
-          cd inm6
+          cd inm_6
           flutter build linux --release
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
           filename: im6-${{github.ref_name}}-linux.zip
-          directory: inm6/build/linux/x64/release/bundle
+          directory: inm_6/build/linux/x64/release/bundle
       - name: Linux Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: inm6/build/linux/x64/release/bundle/imm6-${{github.ref_name}}-linux.zip
+          files: inm_6/build/linux/x64/release/bundle/imm6-${{github.ref_name}}-linux.zip
 
   # build-and-release-windows:
   #   runs-on: windows-latest
@@ -68,7 +68,7 @@ jobs:
   #       uses: thedoctor0/zip-release@master
   #       with:
   #         type: 'zip'
-  #         filename: inm6-${{github.ref_name}}-windows.zip
+  #         filename: inm_6-${{github.ref_name}}-windows.zip
   #         directory: build/windows/runner/Release
   #     - name: Windows Release
   #       uses: softprops/action-gh-release@v1
@@ -76,4 +76,4 @@ jobs:
   #       env:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #       with:
-  #         files: build/windows/runner/Release/inm6-${{github.ref_name}}-windows.zip
+  #         files: build/windows/runner/Release/inm_6-${{github.ref_name}}-windows.zip
