@@ -1,6 +1,6 @@
 name: Flutter CI
 
-on: push:
+on: push
 jobs:
   build-and-release-linux:
     runs-on: ubuntu-latest
