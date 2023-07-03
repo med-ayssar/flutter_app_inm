@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-release-linux:
     runs-on: ubuntu-latest
+    env:
+      working-directory: inm6
 
     steps:
       - uses: actions/checkout@v2
@@ -18,9 +20,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install project dependencies
-        run: |     
-            cd inm_6
-            flutter pub get
+        run:  flutter pub get
       - name: Generate intermediates
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Enable linux build
