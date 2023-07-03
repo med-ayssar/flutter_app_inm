@@ -20,26 +20,32 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install project dependencies
-        run:  flutter pub get
+        run:  |
+          cd inm6
+          flutter pub get
       - name: Generate intermediates
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Enable linux build
-        run: flutter config --enable-linux-desktop
+        run: |
+          cd inm6
+          flutter config --enable-linux-desktop
       - name: Build artifacts
-        run: flutter build linux --release
+        run: |
+          cd inm6
+          flutter build linux --release
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
           filename: im6-${{github.ref_name}}-linux.zip
-          directory: build/linux/x64/release/bundle
+          directory: inm6/build/linux/x64/release/bundle
       - name: Linux Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/linux/x64/release/bundle/imm6-${{github.ref_name}}-linux.zip
+          files: inm6/build/linux/x64/release/bundle/imm6-${{github.ref_name}}-linux.zip
 
   # build-and-release-windows:
   #   runs-on: windows-latest
