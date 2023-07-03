@@ -45,7 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: inm_6/build/linux/x64/release/bundle/imm_6-${{github.ref_name}}-linux.zip
+          files: inm_6/build/linux/x64/release/bundle/inm_6-${{github.ref_name}}-linux.zip
 
   # build-and-release-windows:
   #   runs-on: windows-latest
