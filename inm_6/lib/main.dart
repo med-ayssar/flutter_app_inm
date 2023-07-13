@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:inm_6/utils/config.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 
+
 void main() async {
   await ensureConfigInitialized();
   await setConfigData();
@@ -31,6 +32,7 @@ class MainApp extends StatefulWidget {
   @override
   State<MainApp> createState() => _MainAppState();
 }
+
 class _MainAppState extends State<MainApp> {
   int selectedPage = 0;
   final List<Widget> pages = <Widget>[

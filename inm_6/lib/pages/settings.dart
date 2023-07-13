@@ -4,16 +4,14 @@ import 'package:flutter/material.dart';
 
 // ignore_for_file: depend_on_referenced_packages
 
-import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:inm_6/utils/config.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 
+// ignore: must_be_immutable
 class Settings extends StatelessWidget {
-  Settings({super.key, required this.data}) {
-    // TODO: implement Settings
-  }
+  Settings({super.key, required this.data});
+
   Map<String, dynamic> data;
   @override
   Widget build(BuildContext context) {
@@ -31,6 +29,7 @@ class Settings extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class SettingDialog extends StatefulWidget {
   SettingDialog({super.key, required this.data});
   Map<String, dynamic> data;
@@ -192,10 +191,12 @@ class _SettingDialogState extends State<SettingDialog> {
                     ensureConfigInitialized();
                     await saveConfigData(config);
                     // Phoenix.rebirth(context);
+                    await Process.start(Platform.resolvedExecutable, <String>[],
+                        mode: ProcessStartMode.detached);
                     exit(0);
                   },
                   child: const Text(
-                    'Speichern & Neu Starten!',
+                    'Neu Starten',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
