@@ -62,20 +62,23 @@ jobs:
         working-directory: ${{env.working-directory}}
       - name: Generate intermediates
         run: flutter pub run build_runner build --delete-conflicting-outputs
+        working-directory: ${{env.working-directory}}
       - name: Enable windows build
         run: flutter config --enable-windows-desktop
+        working-directory: ${{env.working-directory}}
       - name: Build artifacts
+        working-directory: ${{env.working-directory}}
         run: flutter build windows --release
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
           filename: inm_6-${{github.ref_name}}-windows.zip
-          directory: build/windows/runner/Release
+          directory: inm_6/build/windows/runner/Release
       - name: Windows Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/windows/runner/Release/inm_6-${{github.ref_name}}-windows.zip
+          files: inm_6/build/windows/runner/Release/inm_6-${{github.ref_name}}-windows.zip
