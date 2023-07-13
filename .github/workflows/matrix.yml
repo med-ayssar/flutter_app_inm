@@ -15,8 +15,7 @@ jobs:
         with:
           channel: 'stable'
           flutter-version: '3.10.2'
-      - name: Install dependencies
-        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - name: Install dependencies        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install project dependencies
         run:  |
           cd inm_6
@@ -47,33 +46,35 @@ jobs:
         with:
           files: inm_6/build/linux/x64/release/bundle/inm_6-${{github.ref_name}}-linux.zip
 
-  # build-and-release-windows:
-  #   runs-on: windows-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: subosito/flutter-action@v1
-  #       with:
-  #         channel: 'stable'
-  #         flutter-version: '2.10.0'
-  #     - name: Install project dependencies
-  #       run: flutter pub get
-  #     - name: Generate intermediates
-  #       run: flutter pub run build_runner build --delete-conflicting-outputs
-  #     - name: Enable windows build
-  #       run: flutter config --enable-windows-desktop
-  #     - name: Build artifacts
-  #       run: flutter build windows --release
-  #     - name: Archive Release
-  #       uses: thedoctor0/zip-release@master
-  #       with:
-  #         type: 'zip'
-  #         filename: inm_6-${{github.ref_name}}-windows.zip
-  #         directory: build/windows/runner/Release
-  #     - name: Windows Release
-  #       uses: softprops/action-gh-release@v1
-  #       if: startsWith(github.ref, 'refs/tags/')
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         files: build/windows/runner/Release/inm_6-${{github.ref_name}}-windows.zip
+  build-and-release-windows:
+    runs-on: windows-latest
+    env:
+      working-directory: inm_6
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+          flutter-version: '2.10.0'
+      - name: Install project dependencies
+        run: flutter pub get
+        working-directory: ${{env.working-directory}}
+      - name: Generate intermediates
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+      - name: Enable windows build
+        run: flutter config --enable-windows-desktop
+      - name: Build artifacts
+        run: flutter build windows --release
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: inm_6-${{github.ref_name}}-windows.zip
+          directory: build/windows/runner/Release
+      - name: Windows Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/windows/runner/Release/inm_6-${{github.ref_name}}-windows.zip
