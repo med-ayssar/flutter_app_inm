@@ -75,6 +75,7 @@ Future<String> deleteName(String newName) async {
 Future<String> delete(User user, bool marked) async {
   String table = marked ? "done" : "todo";
 
+  
   String deleteQuery = 'delete from $table where ID="${user.id}"';
 
   await connectToDataBase();

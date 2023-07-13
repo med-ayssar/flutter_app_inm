@@ -137,23 +137,26 @@ class _EntryDialogState extends State<EntryDialog> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade300),
                   onPressed: () async {
-                    formKey.currentState!.validate();
-                    formKey.currentState!.save();
-                    String error = await database.insertNewEntry(newUser);
-                    if (error != "") {
-                      // ignore: use_build_context_synchronously
-                      ElegantNotification.error(
-                              title: const Text("New Entry"),
-                              description: Text(error))
-                          .show(context);
-                    } else {
-                      ElegantNotification.success(
-                              title: Text("New Entry"),
-                              description: Text("Your data has been updated"))
-                          .show(context);
-                    }
+                    if (formKey.currentState!.validate()) {
+                      formKey.currentState!.save();
+                      String error = await database.insertNewEntry(newUser);
+                      if (error != "") {
+                        // ignore: use_build_context_synchronously
+                        ElegantNotification.error(
+                                title: const Text("New Entry"),
+                                description: Text(error))
+                            .show(context);
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        ElegantNotification.success(
+                                title: const Text("New Entry"),
+                                description:
+                                    const Text("Your data has been updated"))
+                            .show(context);
+                      }
 
-                    formKey.currentState!.reset();
+                      formKey.currentState!.reset();
+                    }
                   },
                   child: const Text(
                     'Bestätigen',
