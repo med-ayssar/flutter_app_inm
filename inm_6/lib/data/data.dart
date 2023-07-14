@@ -136,6 +136,7 @@ MySQLConnection? databaseConnection;
 Future<bool> connectToDataBase() async {
   try {
     databaseConnection = await MySQLConnection.createConnection(
+      secure: false,
       host: connectionConfig["host"],
       port: int.parse(connectionConfig["port"]),
       userName: connectionConfig["user"],
