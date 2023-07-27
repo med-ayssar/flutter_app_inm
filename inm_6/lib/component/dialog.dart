@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:inm_6/utils/user.dart';
+import 'package:inm_6/utils/observable.dart';
 import 'package:intl/intl.dart';
 import 'package:inm_6/data/data.dart' as database;
 

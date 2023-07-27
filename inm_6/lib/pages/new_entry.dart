@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:inm_6/component/dialog.dart';
 import 'package:inm_6/component/entry_dialog.dart';
-import 'package:inm_6/utils/user.dart';
 
 class Entry extends StatelessWidget {
   Entry({super.key}) {

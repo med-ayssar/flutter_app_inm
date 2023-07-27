@@ -1,6 +1,6 @@
 import 'package:mysql_client/mysql_client.dart';
 import 'package:inm_6/utils/config.dart' show connectionConfig;
-import '../utils/user.dart' show Names, User;
+import '../utils/observable.dart' show Names, User;
 
 List<dynamic> data = [];
 
@@ -75,7 +75,6 @@ Future<String> deleteName(String newName) async {
 Future<String> delete(User user, bool marked) async {
   String table = marked ? "done" : "todo";
 
-  
   String deleteQuery = 'delete from $table where ID="${user.id}"';
 
   await connectToDataBase();
@@ -135,10 +134,16 @@ MySQLConnection? databaseConnection;
 
 Future<bool> connectToDataBase() async {
   try {
+    int port;
+    if (connectionConfig["port"] is String) {
+      port = int.parse(connectionConfig["port"]);
+    } else {
+      port = connectionConfig["port"];
+    }
     databaseConnection = await MySQLConnection.createConnection(
       secure: false,
       host: connectionConfig["host"],
-      port: int.parse(connectionConfig["port"]),
+      port: port,
       userName: connectionConfig["user"],
       password: connectionConfig["password"],
       databaseName: connectionConfig["database"], // optional
@@ -175,7 +180,7 @@ Future<void> fetchNames() async {
       names_.map((e) => "${e["name"]}, ${e["vorname"]}").toList();
 }
 
-Future<void> fetchData() async {
+Future<bool> fetchData() async {
   bool succ = await connectToDataBase();
   if (succ) {
     await fetchToDoData();
@@ -183,4 +188,5 @@ Future<void> fetchData() async {
     await fetchNames();
     closeConnection();
   }
+  return succ;
 }

@@ -3,6 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:inm_6/data/data.dart' as database;
 
+enum Status { OK, INIT, FAILED }
+
+class DataFetched with ChangeNotifier {
+  Status isDataFetched = Status.INIT;
+
+  void fechData() async {
+    if (await database.fetchData()) {
+      isDataFetched = Status.OK; //sucess
+    } else {
+      isDataFetched = Status.FAILED; //
+    }
+    notifyListeners();
+  }
+}
+
 class Names with ChangeNotifier {
   Names({required this.names});
   factory Names.empty() {

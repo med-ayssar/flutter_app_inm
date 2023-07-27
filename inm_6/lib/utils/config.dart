@@ -20,6 +20,13 @@ Future<void> ensureConfigInitialized() async {
     await File(path.join(appConfigFolder, "config.json"))
         .create(recursive: true);
     await saveConfigData(connectionConfig);
+  } else {
+    File file = File(path.join(appConfigFolder, "config.json"));
+    bool configExit = file.existsSync();
+    if (!configExit) {
+      file.createSync();
+      await saveConfigData(connectionConfig);
+    }
   }
 }
 

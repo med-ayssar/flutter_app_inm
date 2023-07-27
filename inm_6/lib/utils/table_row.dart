@@ -1,6 +1,5 @@
-import 'package:elegant_notification/elegant_notification.dart';
 import 'package:flutter/material.dart';
-import 'package:inm_6/utils/user.dart';
+import 'package:inm_6/utils/observable.dart';
 import 'package:provider/provider.dart';
 import 'package:inm_6/data/data.dart' as database;
 

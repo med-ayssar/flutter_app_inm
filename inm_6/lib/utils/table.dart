@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:inm_6/component/dialog.dart';
 import 'package:inm_6/utils/table_row.dart' as table_row;
 import 'package:inm_6/data/data.dart' as data_provider;
-import 'package:inm_6/utils/user.dart';
+import 'package:inm_6/utils/observable.dart';
 import 'package:intl/intl.dart';
 
 typedef MyTableRow = table_row.TableRow;
@@ -110,6 +110,7 @@ class _TableState extends State<Table> {
 
   @override
   Widget build(BuildContext context) {
+    print("rebbuild");
     rows.forEach(registerCallBacks);
     appendDialogToRow(context);
     return SingleChildScrollView(
