@@ -58,52 +58,41 @@ class TableRow {
     editable = !editable;
   }
 
+  Widget get_edit_action(bool makred, Refresh refresh) {
+    if (!makred) {
+      return IconButton(
+          tooltip: "Anpassen",
+          onPressed: () async {
+            User? newUser = await updateCellCallback!();
+            if (newUser != null) {
+              assert(user.id == newUser.id);
+              String err = await _user.updateUser(newUser, isMarked);
+              _notify!(err, "Update Entry");
+              refresh();
+            }
+          },
+          icon: const Icon(
+            Icons.edit,
+          ));
+    }
+    return const SizedBox();
+  }
+
   DataRow getRow({bool isMarked = false, required Refresh refresh}) {
     return DataRow(
         // key: ValueKey<String>(user.id!),
         key: UniqueKey(),
         selected: editable,
         cells: <DataCell>[
-          DataCell(ChangeNotifierProvider(
-            create: (context) => _user,
-            child: const Element(elementName: "name"),
-          )),
-          DataCell(ChangeNotifierProvider(
-            create: (context) => _user,
-            child: const Element(elementName: "vorname"),
-          )),
-          DataCell(ChangeNotifierProvider(
-            create: (context) => _user,
-            child: const Element(elementName: "von"),
-          )),
-          DataCell(ChangeNotifierProvider(
-            create: (context) => _user,
-            child: const Element(elementName: "bis"),
-          )),
-          DataCell(ChangeNotifierProvider(
-            create: (context) => _user,
-            child: const Element(elementName: "grund"),
-          )),
-          DataCell(ChangeNotifierProvider(
-            create: (context) => _user,
-            child: const Element(elementName: "beschreibung"),
-          )),
+          DataCell(Element(data: _user.name!)),
+          DataCell(Element(data: _user.vorname!)),
+          DataCell(Element(data: _user.von!)),
+          DataCell(Element(data: _user.bis!)),
+          DataCell(Element(data: _user.grund!)),
+          DataCell(Element(data: _user.beschreibung!)),
           DataCell(Row(
             children: [
-              IconButton(
-                  tooltip: "Anpassen",
-                  onPressed: () async {
-                    User? newUser = await updateCellCallback!();
-                    if (newUser != null) {
-                      assert(user.id == newUser.id);
-                      String err = await _user.updateUser(newUser, isMarked);
-                      _notify!(err, "Update Entry");
-                      refresh();
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.edit,
-                  )),
+              get_edit_action(isMarked, refresh),
               IconButton(
                 onPressed: () async {
                   String err = await database.moveData(_user, isMarked);
@@ -133,15 +122,14 @@ class TableRow {
 }
 
 class Element extends StatelessWidget {
-  final String elementName;
-  const Element({super.key, required this.elementName});
+  final String data;
+  const Element({super.key, required this.data});
   @override
   Widget build(BuildContext context) {
-    var user = context.watch<User>();
     return SizedBox(
       width: 150,
       child: Text(
-        user[elementName],
+        data,
         overflow: TextOverflow.ellipsis,
         softWrap: false,
         maxLines: 1,

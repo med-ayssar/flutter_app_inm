@@ -101,13 +101,13 @@ class User with ChangeNotifier {
 
   bool _disposed = false;
 
-  Future<String> updateUser(User oldUser, bool marked) async {
-    name = oldUser.name;
-    vorname = oldUser.vorname;
-    grund = oldUser.grund;
-    von = oldUser.von;
-    bis = oldUser.bis;
-    beschreibung = oldUser.beschreibung;
+  Future<String> updateUser(User newUserData, bool marked) async {
+    name = newUserData.name;
+    vorname = newUserData.vorname;
+    grund = newUserData.grund;
+    von = newUserData.von;
+    bis = newUserData.bis;
+    beschreibung = newUserData.beschreibung;
     String err = await database.updateUser(this, marked);
     notifyListeners();
     return err;

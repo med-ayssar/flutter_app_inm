@@ -11,7 +11,9 @@ class TODO extends StatelessWidget {
     return Flexible(
       child: Container(
         constraints: const BoxConstraints.expand(),
-        child: const local_table.Table(marked: false,),
+        child: const local_table.Table(
+          marked: false,
+        ),
       ),
     );
   }
