@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:inm_6/component/dialog.dart';
 import 'package:inm_6/utils/table_row.dart' as table_row;
 import 'package:inm_6/data/data.dart' as data_provider;
-import 'package:inm_6/utils/observable.dart';
+import 'package:inm_6/utils/observable.dart' as ob;
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 typedef MyTableRow = table_row.TableRow;
-typedef DialogFactory = Future<User?> Function();
+typedef DialogFactory = Future<ob.User?> Function();
 
 class Table extends StatefulWidget {
   const Table({super.key, required this.marked});
@@ -28,12 +29,21 @@ class _TableState extends State<Table> {
   @override
   void initState() {
     super.initState();
+    // Create anonymous function:
+    () async {
+      await data_provider.fetchData();
+    }();
+    rows = initRows();
+  }
+
+  List<MyTableRow> initRows() {
     List<dynamic> localData =
         widget.marked ? data_provider.doneData : data_provider.data;
-
+    List<MyTableRow> rowsLocal = [];
     for (var element in localData) {
-      rows.add(MyTableRow.fromJson(element));
+      rowsLocal.add(MyTableRow.fromJson(element));
     }
+    return rowsLocal;
   }
 
   void registerCallBacks(MyTableRow element) {
@@ -50,9 +60,9 @@ class _TableState extends State<Table> {
     };
   }
 
-  DialogFactory dialogFactory(BuildContext context, User user) {
-    Future<User?> dialog() {
-      return showDialog<User>(
+  DialogFactory dialogFactory(BuildContext context, ob.User user) {
+    Future<ob.User?> dialog() {
+      return showDialog<ob.User>(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -110,7 +120,6 @@ class _TableState extends State<Table> {
 
   @override
   Widget build(BuildContext context) {
-    print("rebbuild");
     rows.forEach(registerCallBacks);
     appendDialogToRow(context);
     return SingleChildScrollView(
@@ -248,7 +257,15 @@ class _TableState extends State<Table> {
                 label: Center(child: Text("Action")),
               ),
             ],
-            rows: rows.map((e) => e.getRow(isMarked: widget.marked)).toList()),
+            rows: rows
+                .map((e) => e.getRow(
+                    isMarked: widget.marked,
+                    refresh: () {
+                      setState(() {
+                        rows = initRows();
+                      });
+                    }))
+                .toList()),
       ),
     );
   }

@@ -5,7 +5,7 @@ import 'package:inm_6/data/data.dart' as database;
 
 typedef RowCallBack = void Function();
 typedef NotifyCallBack = void Function(String, String);
-
+typedef Refresh = void Function();
 typedef DialogFuture = Future<User?> Function();
 
 class TableRow {
@@ -58,9 +58,10 @@ class TableRow {
     editable = !editable;
   }
 
-  DataRow getRow({bool isMarked = false}) {
+  DataRow getRow({bool isMarked = false, required Refresh refresh}) {
     return DataRow(
-        key: ValueKey<String>(user.id!),
+        // key: ValueKey<String>(user.id!),
+        key: UniqueKey(),
         selected: editable,
         cells: <DataCell>[
           DataCell(ChangeNotifierProvider(
@@ -97,6 +98,7 @@ class TableRow {
                       assert(user.id == newUser.id);
                       String err = await _user.updateUser(newUser, isMarked);
                       _notify!(err, "Update Entry");
+                      refresh();
                     }
                   },
                   icon: const Icon(
@@ -107,6 +109,7 @@ class TableRow {
                   String err = await database.moveData(_user, isMarked);
                   _notify!(err, "Move Entry");
                   _move!();
+                  refresh();
                 },
                 icon: isMarked
                     ? const Icon(Icons.undo_sharp)
@@ -118,6 +121,7 @@ class TableRow {
                   String err = await database.delete(_user, isMarked);
                   _notify!(err, "Delete Entry");
                   _move!();
+                  refresh();
                 },
                 icon: const Icon(Icons.delete_forever_outlined),
                 tooltip: "Loeschen",

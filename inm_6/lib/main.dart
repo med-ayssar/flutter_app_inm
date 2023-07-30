@@ -45,6 +45,13 @@ class _MainAppState extends State<MainApp> {
     )
   ];
 
+  final Map<int, Widget Function()> factory = {
+    0: () => Entry(),
+    1: () => TODO(),
+    2: () => Done(),
+    3: () => People(),
+    4: () => Settings(data: connectionConfig),
+  };
   void updatePage(int newSelectedPage) {
     setState(() {
       selectedPage = newSelectedPage;
@@ -54,10 +61,15 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     Panel panel = Panel(selectedPage: selectedPage, setPage: updatePage);
-    Widget page = pages.elementAt(selectedPage);
+    Widget page = factory[selectedPage]!();
     return MaterialApp(
-        home: ChangeNotifierProvider(
-      create: (context) => ob.DataFetched(),
+        home: MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ob.DataFetched()),
+        ChangeNotifierProvider(
+          create: (_) => ob.RefreshData(),
+        )
+      ],
       child: Main(page: page, panel: panel),
     ));
   }
@@ -95,6 +107,7 @@ class _MainState extends State<Main> {
         size: 200,
       ));
     } else {
+      DesktopWindow.setMinWindowSize(const Size(1600, 800));
       return const ErrorPage();
     }
   }

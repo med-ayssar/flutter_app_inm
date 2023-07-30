@@ -18,6 +18,12 @@ class DataFetched with ChangeNotifier {
   }
 }
 
+class RefreshData with ChangeNotifier {
+  void refresh() {
+    notifyListeners();
+  }
+}
+
 class Names with ChangeNotifier {
   Names({required this.names});
   factory Names.empty() {
