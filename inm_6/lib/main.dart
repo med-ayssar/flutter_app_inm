@@ -35,16 +35,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   int selectedPage = 0;
-  final List<Widget> pages = <Widget>[
-    Entry(),
-    TODO(),
-    Done(),
-    People(),
-    Settings(
-      data: connectionConfig,
-    )
-  ];
-
+  
   final Map<int, Widget Function()> factory = {
     0: () => Entry(),
     1: () => TODO(),
@@ -91,7 +82,8 @@ class _MainState extends State<Main> {
     super.initState();
   }
 
-  Widget getCurrentView(ob.Status status, BuildContext context) {
+  Widget 
+  getCurrentView(ob.Status status, BuildContext context) {
     if (status == ob.Status.OK) {
       return ChangeNotifierProvider(
         create: (context) => database.observableNames,

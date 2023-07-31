@@ -11,10 +11,11 @@ Names observableNames = Names.empty();
 final List<String> dropDownOptions = [
   "A?",
   "Url",
-  "k?",
-  "RRU",
+  "K?",
+  "KO?",
+  "DRU",
   "DR",
-  "Sontiges"
+  "Sonstiges"
 ];
 
 Future<String> moveData(User user, bool marked) async {
@@ -163,7 +164,7 @@ void closeConnection() {
 Future<List<Map<String, String?>>?> retrievedata(String table) async {
   String query = "SELECT * FROM $table";
   var response = await databaseConnection?.execute(query);
-  return response?.rows?.map((e) => e.assoc()).toList();
+  return response?.rows?.map((e) => e.assoc()).toList().reversed.toList();
 }
 
 Future<void> fetchToDoData() async {
